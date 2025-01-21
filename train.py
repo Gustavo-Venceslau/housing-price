@@ -30,9 +30,11 @@ y_test = strat_test_set["median_house_value"].copy()
 X_test_prepared = full_pipeline.transform(X_test)
 final_predictions = final_model.predict(X_test_prepared)
 
+print("predictions:", final_predictions)
+
 final_mse = mean_squared_error(y_test, final_predictions)
 final_rmse = np.sqrt(final_mse)
-print(final_rmse)
+print("rmse:", final_rmse)
 
 # Confidence Interval for the RMSE
 
@@ -44,7 +46,7 @@ confidence_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) -
                          loc=squared_errors.mean(),
                         scale=stats.sem(squared_errors)))
 
-print(confidence_interval)
+print("confidence interval:", confidence_interval)
 
 # Saving the model
 import joblib
