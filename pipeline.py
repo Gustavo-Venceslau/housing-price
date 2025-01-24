@@ -8,7 +8,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from transformers.CombinedAtributesAdder import CombinedAttributesAdder
-from sklearn.ensemble import RandomForestRegressor
 
 housing["income_cat"] = pd.cut(housing["median_income"],
                               bins=[0., 1.5, 3.0, 4.5, 6., np.inf],
