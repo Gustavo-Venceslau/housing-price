@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.impute import SimpleImputer
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
+from transformers.CombinedAtributesAdder import CombinedAttributesAdder
+from sklearn.ensemble import RandomForestRegressor
 
 housing["income_cat"] = pd.cut(housing["median_income"],
                               bins=[0., 1.5, 3.0, 4.5, 6., np.inf],
@@ -35,23 +36,6 @@ housing_labels = strat_train_set["median_house_value"].copy()
 imputer = SimpleImputer(strategy="median")
 housing_num = housing.drop("ocean_proximity", axis=1)
 
-# Building our own transformer to fit our needs
-rooms_ix, bedrooms_ix, population_ix, households_ix = 3, 4, 5, 6
-
-class CombinedAttributesAdder(BaseEstimator, TransformerMixin):
-    def __init__(self, add_bedrooms_per_room=True):
-        self.add_bedrooms_per_room = add_bedrooms_per_room
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X, y=None):
-        rooms_per_household = X[:, rooms_ix] / X[:, households_ix]
-        population_per_household = X[:, population_ix] / X[:, households_ix]
-        if self.add_bedrooms_per_room:
-            bedrooms_per_room = X[:, bedrooms_ix] / X[:, rooms_ix]
-            return np.c_[X, rooms_per_household, population_per_household, bedrooms_per_room]
-        else:
-            return np.c_[X, rooms_per_household, population_per_household]
-
 attr_adder = CombinedAttributesAdder(add_bedrooms_per_room=False)
 house_extra_attribs = attr_adder.transform(housing.values)
 
@@ -62,7 +46,7 @@ num_pipeline = Pipeline([
     ('std_scaler', StandardScaler()),
 ])
 
-housing_num_tr = num_pipeline.fit_transform(housing_num)
+housing_num_tr = num_pipeline.fit_transform(housing_num, housing_labels)
 
 # Contem apenas os nomes dos atributos
 num_attribs = list(housing_num)
